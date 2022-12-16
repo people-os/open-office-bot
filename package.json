@@ -1,10 +1,10 @@
 {
-  "name": "balena-typescript-skeleton",
-  "version": "2.2.0",
-  "description": "Skeleton template for a balena TypeScript project",
-  "homepage": "https://github.com/balena-io/balena-typescript-skeleton#readme",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "name": "open-office-bot",
+  "version": "0.0.1",
+  "description": "Tell you about meetings",
+  "homepage": "https://github.com/product-os/open-office-bot#readme",
+  "main": "build/bot.js",
+  "types": "build/bot.d.ts",
   "keywords": [
     "balena",
     "typescript"
@@ -13,10 +13,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/balena-io/balena-typescript-skeleton.git"
+    "url": "git+https://github.com/product-os/open-office-bot.git"
   },
   "bugs": {
-    "url": "https://github.com/balena-io/balena-typescript-skeleton/issues"
+    "url": "https://github.com/product-os/open-office-bot/issues"
   },
   "files": [
     "build/"
