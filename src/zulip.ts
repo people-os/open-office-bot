@@ -118,8 +118,11 @@ export default class Zulip {
 }
 
 function log(level: string, value: string) {
-	const now = new Date();
+	const currentDate = new Date();
+	const hours = currentDate.getUTCHours().toString().padStart(2, '0');
+	const minutes = currentDate.getUTCMinutes().toString().padStart(2, '0');
+	const seconds = currentDate.getUTCSeconds().toString().padStart(2, '0');
 	console.log(
-		`[${level.toUpperCase()}] ${now.getHours()}:+${now.getMinutes()}:${now.getSeconds()} ${value}`,
+		`[${level.toUpperCase()}] ${hours}:${minutes}:${seconds} ${value} `,
 	);
 }
