@@ -31,7 +31,7 @@
     "test": "npm run build && npm run lint && npm run test:node && npm run test:browser",
     "test:fast": "npm run build && npm run test:node",
     "prepack": "npm run build",
-    "dev": "ts-node-dev --respawn --transpile-only src/bot.ts"
+    "dev": "env $(cat .env | xargs) ts-node-dev --respawn --transpile-only src/bot.ts"
   },
   "devDependencies": {
     "@balena/lint": "^5.4.2",
@@ -52,5 +52,8 @@
   },
   "versionist": {
     "publishedAt": "2022-07-20T21:31:17.871Z"
+  },
+  "dependencies": {
+    "zulip-js": "^2.0.9"
   }
 }
