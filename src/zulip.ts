@@ -106,6 +106,7 @@ export default class Zulip {
 		if (!this.client) {
 			throw new Error('Zulip client has not been initilzied yet!');
 		}
+		log('info', `${method} ${endpoint} ${JSON.stringify(params)}`);
 		return this.client.callEndpoint(endpoint, method, params);
 	}
 
@@ -114,4 +115,11 @@ export default class Zulip {
 			clearInterval(this.heartbeat);
 		}
 	}
+}
+
+function log(level: string, value: string) {
+	const now = new Date();
+	console.log(
+		`[${level.toUpperCase()}] ${now.getHours()}:+${now.getMinutes()}:${now.getSeconds()} ${value}`,
+	);
 }

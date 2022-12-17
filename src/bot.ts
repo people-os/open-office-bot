@@ -11,9 +11,9 @@ async function run() {
 	const zulipClient = new zulip(CONFIG);
 
 	await zulipClient.init({
-		name: process.env.PROFILE_NAME || `✨✨ ${names.random()} ✨✨`,
-		status: process.env.PROFILE_STATUS || 'Initializing...',
-		presence: process.env.PROFILE_STATUS ? 'active' : 'idle',
+		name: process.env.DEFAULT_NAME || `✨✨ ${names.random()} ✨✨`,
+		status: process.env.DEFAULT_STATUS || 'Initializing...',
+		presence: process.env.DEFAULT_STATUS ? 'active' : 'idle',
 	});
 }
 
