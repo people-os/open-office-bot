@@ -1,19 +1,16 @@
 import zulip from './zulip';
 import * as names from './names';
+import config from './config';
 
-const CONFIG = {
-	username: process.env.ZULIP_USERNAME || '',
-	password: process.env.ZULIP_PASSWORD || '',
-	realm: process.env.ZULIP_REALM || '',
-};
+const { zulip: zConfig } = config;
 
 async function run() {
-	const zulipClient = new zulip(CONFIG);
+	const zulipClient = new zulip(zConfig.auth);
 
 	await zulipClient.init({
-		name: process.env.DEFAULT_NAME || `✨✨ ${names.random()} ✨✨`,
-		status: process.env.DEFAULT_STATUS || 'Initializing...',
-		presence: process.env.DEFAULT_STATUS ? 'active' : 'idle',
+		name: zConfig.profile.name || `✨✨ ${names.random()} ✨✨`,
+		status: zConfig.profile.status || 'Initializing...',
+		presence: zConfig.profile.status ? 'active' : 'idle',
 	});
 }
 
