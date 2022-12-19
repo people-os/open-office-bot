@@ -1,5 +1,6 @@
 // @ts-ignore zulip-js does not have any types
 import * as zulip from 'zulip-js';
+import * as log from './logger';
 
 const PRESENCE_TICK = 140000;
 
@@ -106,7 +107,7 @@ export default class Zulip {
 		if (!this.client) {
 			throw new Error('Zulip client has not been initilzied yet!');
 		}
-		log('info', `${method} ${endpoint} ${JSON.stringify(params)}`);
+		log.info(`${method} ${endpoint} ${JSON.stringify(params)}`);
 		return this.client.callEndpoint(endpoint, method, params);
 	}
 
@@ -115,14 +116,4 @@ export default class Zulip {
 			clearInterval(this.heartbeat);
 		}
 	}
-}
-
-function log(level: string, value: string) {
-	const currentDate = new Date();
-	const hours = currentDate.getUTCHours().toString().padStart(2, '0');
-	const minutes = currentDate.getUTCMinutes().toString().padStart(2, '0');
-	const seconds = currentDate.getUTCSeconds().toString().padStart(2, '0');
-	console.log(
-		`[${level.toUpperCase()}] ${hours}:${minutes}:${seconds} ${value} `,
-	);
 }
