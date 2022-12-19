@@ -1,13 +1,13 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 // @ts-ignore zulip-js does not have any types
-import * as zulip from 'zulip-js';
-import * as log from './logger';
+import * as zulip from "zulip-js";
+import * as log from "./logger";
 
 const PRESENCE_TICK = 140000;
 
 type Config = { username: string; password: string; realm: string };
-type Presence = 'active' | 'idle' | 'offline';
+type Presence = "active" | "idle" | "offline";
 
 type Profile = {
 	name: string;
@@ -19,7 +19,7 @@ export class Zulip extends EventEmitter {
 	private client: any | null;
 	private config: Config;
 	private heartbeat: NodeJS.Timer | null;
-	private profile: Profile;
+	public profile: Profile;
 
 	constructor(config: Config, profile: Profile) {
 		super();
@@ -34,14 +34,14 @@ export class Zulip extends EventEmitter {
 		this.client.callOnEachEvent(
 			(event: any) => {
 				if (
-					event.type !== 'message' ||
+					event.type !== "message" ||
 					event.message.sender_email === this.config.username
 				) {
 					return;
 				}
-				this.emit('message', new Message(this.client, event.message));
+				this.emit("message", new Message(this.client, event.message));
 			},
-			['message'],
+			["message"]
 		);
 
 		await this.syncProfile(this.profile);
@@ -49,28 +49,28 @@ export class Zulip extends EventEmitter {
 
 	public async active() {
 		await this.setInvisible(false);
-		await this.persistPresence('active');
-		this.profile.presence = 'active';
+		await this.persistPresence("active");
+		this.profile.presence = "active";
 	}
 
 	public async idle() {
 		await this.setInvisible(false);
-		await this.persistPresence('idle');
-		this.profile.presence = 'idle';
+		await this.persistPresence("idle");
+		this.profile.presence = "idle";
 	}
 
 	public async offline() {
 		this.clearHeartbeat();
 		await this.setInvisible(true);
-		this.profile.presence = 'offline';
+		this.profile.presence = "offline";
 	}
 
 	public async setName(name: string) {
 		const params = {
 			full_name: name,
-			method: 'PATCH',
+			method: "PATCH",
 		};
-		await this.request('/settings', 'POST', params);
+		await this.request("/settings", "POST", params);
 		this.profile.name = name;
 	}
 
@@ -78,7 +78,7 @@ export class Zulip extends EventEmitter {
 		const params = {
 			status_text: status,
 		};
-		await this.request('/users/me/status', 'POST', params);
+		await this.request("/users/me/status", "POST", params);
 		this.profile.status = status;
 	}
 
@@ -90,11 +90,11 @@ export class Zulip extends EventEmitter {
 			await this.setStatus(profile.status);
 		}
 		switch (profile.presence) {
-			case 'active':
+			case "active":
 				return this.active();
-			case 'idle':
+			case "idle":
 				return this.idle();
-			case 'offline':
+			case "offline":
 				return this.offline();
 			default:
 				return;
@@ -103,20 +103,20 @@ export class Zulip extends EventEmitter {
 
 	private async setInvisible(invisible: boolean) {
 		const params = {
-			presence_enabled: !invisible ? 'true' : 'false',
-			method: 'PATCH',
+			presence_enabled: !invisible ? "true" : "false",
+			method: "PATCH",
 		};
-		return this.request('/settings', 'POST', params);
+		return this.request("/settings", "POST", params);
 	}
 
 	private async setPresence(presence: Presence) {
 		const params = {
 			status: presence,
-			ping_only: 'false',
-			new_user_input: 'false',
-			slim_presence: 'true',
+			ping_only: "false",
+			new_user_input: "false",
+			slim_presence: "true",
 		};
-		return this.request('/users/me/presence', 'POST', params);
+		return this.request("/users/me/presence", "POST", params);
 	}
 
 	private async persistPresence(status: Presence) {
@@ -129,7 +129,7 @@ export class Zulip extends EventEmitter {
 
 	private async request(endpoint: string, method: string, params: {}) {
 		if (!this.client) {
-			throw new Error('Zulip client has not been initilzied yet!');
+			throw new Error("Zulip client has not been initilzied yet!");
 		}
 		log.info(`${method} ${endpoint} ${JSON.stringify(params)}`);
 		return this.client.callEndpoint(endpoint, method, params);
@@ -153,11 +153,11 @@ export class Message {
 
 	async respond(content: string) {
 		log.info(
-			`Sent message { to: ${this.data.sender_email}, type: ${this.data.type}, subject: ${this.data.subject}, contentLength: ${content.length}}`,
+			`Sent message { to: ${this.data.sender_email}, type: ${this.data.type}, subject: ${this.data.subject}, contentLength: ${content.length}}`
 		);
 		return this.client.messages.send({
 			to:
-				this.data.type === 'private'
+				this.data.type === "private"
 					? this.data.sender_email
 					: this.data.display_recipient,
 			type: this.data.type,
@@ -183,9 +183,9 @@ export type MessageMetadata = {
 	sender_email: string;
 	sender_realm_str: string;
 	display_recipient: [
-		{ id: number; email: string; full_name: string; is_mirror_dummy: boolean },
+		{ id: number; email: string; full_name: string; is_mirror_dummy: boolean }
 	];
-	type: 'private' | 'stream';
+	type: "private" | "stream";
 	avatar_url: null;
 	content_type: string;
 };
