@@ -8,16 +8,16 @@ It does this by monitoring meetings and updating its status to be the number of 
 
 1. Clone the repository
 2. Install Node modules with `npm ci`
-3. Setup the (configuration)[#Configuration] variables
+3. Setup the [configuration](#Configuration) variables
 4. Start it with `npm run start`
 
-See (Development)[#Development] for more information if you plan to make changes.
+See [Development](#Development) for more information if you plan to make changes.
 
 ## Configuration
 
 This application requires you to pass in some variables or else it will not run.
 
-See the (config.ts)[src/config.ts] file for environment variable keys needed.
+See the [config.ts](src/config.ts) file for environment variable keys needed.
 
 ### Configuration Notes
 
