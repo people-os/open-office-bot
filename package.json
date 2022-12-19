@@ -31,6 +31,7 @@
     "test": "npm run build && npm run lint && npm run test:node && npm run test:browser",
     "test:fast": "npm run build && npm run test:node",
     "prepack": "npm run build",
+    "start": "npm run build && node build/bot.js",
     "dev": "env $(cat .env | xargs) ts-node-dev --respawn --transpile-only src/bot.ts"
   },
   "devDependencies": {
