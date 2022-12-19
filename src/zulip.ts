@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 // @ts-ignore zulip-js does not have any types
 import * as zulip from 'zulip-js';
 import * as log from './logger';
@@ -13,12 +15,13 @@ type Profile = {
 	presence: Presence;
 };
 
-export default class Zulip {
-	client: any | null;
-	config: Config;
-	heartbeat: NodeJS.Timer | null;
+export class Zulip extends EventEmitter {
+	private client: any | null;
+	private config: Config;
+	private heartbeat: NodeJS.Timer | null;
 
 	constructor(config: Config) {
+		super();
 		this.client = null;
 		this.config = config;
 		this.heartbeat = null;
@@ -26,6 +29,16 @@ export default class Zulip {
 
 	public async init(profile: Partial<Profile> = {}) {
 		this.client = await zulip(this.config);
+		this.client.callOnEachEvent(
+			(event: any) => {
+				if (event.type !== 'message') {
+					return;
+				}
+				this.emit('message', event.message);
+			},
+			['message'],
+		);
+
 		if (profile == null) {
 			return;
 		}
@@ -117,3 +130,26 @@ export default class Zulip {
 		}
 	}
 }
+
+export type Message = {
+	id: number;
+	sender_id: number;
+	content: string;
+	recipient_id: number;
+	timestamp: number;
+	client: string;
+	subject: string;
+	topic_links: [];
+	is_me_message: boolean;
+	reactions: [];
+	submessages: [];
+	sender_full_name: string;
+	sender_email: string;
+	sender_realm_str: string;
+	display_recipient: [
+		{ id: number; email: string; full_name: string; is_mirror_dummy: boolean },
+	];
+	type: 'private' | 'stream';
+	avatar_url: null;
+	content_type: string;
+};
