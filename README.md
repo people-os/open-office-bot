@@ -25,7 +25,7 @@ The Zulip account used is a regular account not a bot. This is because this appl
 
 The realm value is just the domain pointing to your Zulip instance.
 
-_NOTE: It is recommended that you disable the "Send email notifications for new logsin to my account" for this profile to avoid being spammed._
+_NOTE: It is recommended that you disable all the notifications for this account to not get spammed by activity_
 
 ## Development
 
