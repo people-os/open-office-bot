@@ -31,10 +31,13 @@ export class Zulip extends EventEmitter {
 		this.client = await zulip(this.config);
 		this.client.callOnEachEvent(
 			(event: any) => {
-				if (event.type !== 'message') {
+				if (
+					event.type !== 'message' ||
+					event.message.sender_email === this.config.username
+				) {
 					return;
 				}
-				this.emit('message', event.message);
+				this.emit('message', new Message(this.client, event.message));
 			},
 			['message'],
 		);
@@ -131,7 +134,32 @@ export class Zulip extends EventEmitter {
 	}
 }
 
-export type Message = {
+export class Message {
+	public data: MessageMetadata;
+	private client: any;
+
+	constructor(client: any, data: MessageMetadata) {
+		this.data = data;
+		this.client = client;
+	}
+
+	async respond(content: string) {
+		log.info(
+			`Sent message { to: ${this.data.sender_email}, type: ${this.data.type}, subject: ${this.data.subject}, contentLength: ${content.length}}`,
+		);
+		return this.client.messages.send({
+			to:
+				this.data.type === 'private'
+					? this.data.sender_email
+					: this.data.display_recipient,
+			type: this.data.type,
+			subject: this.data.subject,
+			content,
+		});
+	}
+}
+
+export type MessageMetadata = {
 	id: number;
 	sender_id: number;
 	content: string;
