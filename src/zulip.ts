@@ -19,15 +19,17 @@ export class Zulip extends EventEmitter {
 	private client: any | null;
 	private config: Config;
 	private heartbeat: NodeJS.Timer | null;
+	private profile: Profile;
 
-	constructor(config: Config) {
+	constructor(config: Config, profile: Profile) {
 		super();
 		this.client = null;
 		this.config = config;
 		this.heartbeat = null;
+		this.profile = profile;
 	}
 
-	public async init(profile: Partial<Profile> = {}) {
+	public async init() {
 		this.client = await zulip(this.config);
 		this.client.callOnEachEvent(
 			(event: any) => {
@@ -42,40 +44,25 @@ export class Zulip extends EventEmitter {
 			['message'],
 		);
 
-		if (profile == null) {
-			return;
-		}
-		if (profile.name) {
-			await this.setName(profile.name);
-		}
-		if (profile.status) {
-			await this.setStatus(profile.status);
-		}
-		if (profile.presence) {
-			switch (profile.presence) {
-				case 'active':
-					return this.active();
-				case 'idle':
-					return this.idle();
-				case 'offline':
-					return this.offline();
-			}
-		}
+		await this.syncProfile(this.profile);
 	}
 
 	public async active() {
 		await this.setInvisible(false);
-		return this.persistPresence('active');
+		await this.persistPresence('active');
+		this.profile.presence = 'active';
 	}
 
 	public async idle() {
 		await this.setInvisible(false);
-		return this.persistPresence('idle');
+		await this.persistPresence('idle');
+		this.profile.presence = 'idle';
 	}
 
 	public async offline() {
 		this.clearHeartbeat();
-		return this.setInvisible(true);
+		await this.setInvisible(true);
+		this.profile.presence = 'offline';
 	}
 
 	public async setName(name: string) {
@@ -83,14 +70,35 @@ export class Zulip extends EventEmitter {
 			full_name: name,
 			method: 'PATCH',
 		};
-		return this.request('/settings', 'POST', params);
+		await this.request('/settings', 'POST', params);
+		this.profile.name = name;
 	}
 
 	public async setStatus(status: string) {
 		const params = {
 			status_text: status,
 		};
-		return this.request('/users/me/status', 'POST', params);
+		await this.request('/users/me/status', 'POST', params);
+		this.profile.status = status;
+	}
+
+	private async syncProfile(profile: Partial<Profile>) {
+		if (profile.name) {
+			await this.setName(profile.name);
+		}
+		if (profile.status) {
+			await this.setStatus(profile.status);
+		}
+		switch (profile.presence) {
+			case 'active':
+				return this.active();
+			case 'idle':
+				return this.idle();
+			case 'offline':
+				return this.offline();
+			default:
+				return;
+		}
 	}
 
 	private async setInvisible(invisible: boolean) {
