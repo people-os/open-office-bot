@@ -1,10 +1,10 @@
 import { existsSync } from 'fs';
-
 import { Browser, Page, ElementHandle } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
 import config from './config';
 
-import StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const sp = StealthPlugin();
 sp.enabledEvasions.delete('iframe.contentWindow');
 sp.enabledEvasions.delete('navigator.plugins');

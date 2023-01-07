@@ -1,6 +1,6 @@
 import { Browser } from 'puppeteer';
 // @ts-ignore does not have any types
-import totp = require('totp-generator');
+import totp from 'totp-generator';
 
 import { newBrowser, newPage, clickElement, getText } from './browser';
 

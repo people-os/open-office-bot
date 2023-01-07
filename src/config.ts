@@ -4,23 +4,23 @@ export default {
 	},
 	zulip: {
 		auth: {
-			username: process.env.ZULIP_USERNAME || "",
-			password: process.env.ZULIP_PASSWORD || "",
-			realm: process.env.ZULIP_REALM || "",
+			username: process.env.ZULIP_USERNAME || '',
+			password: process.env.ZULIP_PASSWORD || '',
+			realm: process.env.ZULIP_REALM || '',
 		},
 		profile: {
-			name: process.env.DEFAULT_NAME || "",
-			status: process.env.DEFAULT_STATUS || "",
+			name: process.env.DEFAULT_NAME || '',
+			status: process.env.DEFAULT_STATUS || '',
 		},
 	},
 	meet: {
 		auth: {
-			username: process.env.GOOGLE_USERNAME || "",
-			password: process.env.GOOGLE_PASSWORD || "",
-			totpSecret: process.env.GOOGLE_TOTP_SECRET || "",
+			username: process.env.GOOGLE_USERNAME || '',
+			password: process.env.GOOGLE_PASSWORD || '',
+			totpSecret: process.env.GOOGLE_TOTP_SECRET || '',
 		},
 	},
 	puppeteer: {
-		executablePath: process.env.CHROMIUM_BIN || "",
+		executablePath: process.env.CHROMIUM_BIN || '',
 	},
 };

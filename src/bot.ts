@@ -1,7 +1,7 @@
-import { Zulip, Message } from "./zulip";
-import meet from "./google-meet";
-import * as names from "./names";
-import config from "./config";
+import { Zulip, Message } from './zulip';
+import meet from './google-meet';
+import * as names from './names';
+import config from './config';
 
 const { bot: bConfig, zulip: zConfig, meet: gConfig } = config;
 
@@ -11,8 +11,8 @@ async function run() {
 	// Create an interface to Zulip
 	const zulipClient = new Zulip(zConfig.auth, {
 		name: BOT_NAME,
-		status: zConfig.profile.status || "Initializing...",
-		presence: zConfig.profile.status ? "active" : "idle",
+		status: zConfig.profile.status || 'Initializing...',
+		presence: zConfig.profile.status ? 'active' : 'idle',
 	});
 
 	// Create an interface to google meet
@@ -24,9 +24,9 @@ async function run() {
 	// Initialize Zulip client (login and sync profile)
 	await zulipClient.init();
 
-	zulipClient.on("message", async (message: Message) => {
+	zulipClient.on('message', async (message: Message) => {
 		if (
-			message.data.type !== "private" &&
+			message.data.type !== 'private' &&
 			!message.data.content.includes(`@**${BOT_NAME}**`)
 		) {
 			// Only respond to private messages, or messages in topics that mention me
@@ -36,7 +36,7 @@ async function run() {
 			await message.respond(`Join the call at: ${meetSession.link()}`);
 		} else {
 			await message.respond(
-				`I don't have a meeting link to provide. Contact my boss.`
+				`I don't have a meeting link to provide. Contact my boss.`,
 			);
 		}
 	});
