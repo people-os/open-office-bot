@@ -9,8 +9,8 @@ export default {
 			realm: process.env.ZULIP_REALM || '',
 		},
 		profile: {
-			name: process.env.ZULIP_NAME || '',
-			status: process.env.DEFAULT_STATUS || '',
+			name: process.env.ZULIP_NAME || '👀👀 Example Bot 👀👀',
+			status: process.env.DEFAULT_STATUS || '...',
 		},
 	},
 	meet: {
@@ -22,6 +22,6 @@ export default {
 		},
 	},
 	puppeteer: {
-		executablePath: process.env.CHROMIUM_BIN || '',
+		executablePath: process.env.CHROMIUM_BIN || '/usr/bin/chromium-browser',
 	},
 };
