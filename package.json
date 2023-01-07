@@ -55,6 +55,10 @@
     "publishedAt": "2022-07-20T21:31:17.871Z"
   },
   "dependencies": {
+    "puppeteer": "^19.4.1",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "totp-generator": "^0.0.14",
     "zulip-js": "^2.0.9"
   }
 }
