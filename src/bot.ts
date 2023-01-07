@@ -1,16 +1,13 @@
 import { Zulip, Message } from './zulip';
 import meet from './google-meet';
-import * as names from './names';
 import config from './config';
 
 const { bot: bConfig, zulip: zConfig, meet: gConfig } = config;
 
 async function run() {
-	const BOT_NAME = zConfig.profile.name || `✨✨ ${names.random()} ✨✨`;
-
 	// Create an interface to Zulip
 	const zulipClient = new Zulip(zConfig.auth, {
-		name: BOT_NAME,
+		name: zConfig.profile.name,
 		status: zConfig.profile.status || 'Initializing...',
 		presence: zConfig.profile.status ? 'active' : 'idle',
 	});
@@ -27,7 +24,7 @@ async function run() {
 	zulipClient.on('message', async (message: Message) => {
 		if (
 			message.data.type !== 'private' &&
-			!message.data.content.includes(`@**${BOT_NAME}**`)
+			!message.data.content.includes(`@**${zConfig.profile.name}**`)
 		) {
 			// Only respond to private messages, or messages in topics that mention me
 			return;
