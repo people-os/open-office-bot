@@ -62,6 +62,7 @@ export class Zulip extends EventEmitter {
 	public async offline() {
 		this.clearHeartbeat();
 		await this.setInvisible(true);
+		await this.setStatus('Sleeping');
 		this.profile.presence = 'offline';
 	}
 

@@ -9,7 +9,7 @@ export default {
 			realm: process.env.ZULIP_REALM || '',
 		},
 		profile: {
-			name: process.env.DEFAULT_NAME || '',
+			name: process.env.ZULIP_NAME || '',
 			status: process.env.DEFAULT_STATUS || '',
 		},
 	},

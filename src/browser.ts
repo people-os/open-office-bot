@@ -72,7 +72,10 @@ export async function newPage(browser: Browser): Promise<Page> {
 	return page;
 }
 
-async function findElement(page: Page, search: string): Promise<ElementHandle> {
+export async function findElement(
+	page: Page,
+	search: string,
+): Promise<ElementHandle> {
 	// Find the element on the page using the search text
 	const element = await page.$x(`//*[contains(text(), '${search}')]`);
 	// If the element was found, return its innerHTML
