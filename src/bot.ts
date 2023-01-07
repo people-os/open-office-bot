@@ -15,9 +15,6 @@ async function run() {
 	// Create an interface to google meet
 	const meetSession = await meet(gConfig.auth);
 
-	// Create a meeting we can interact with
-	await meetSession.createMeeting();
-
 	// Initialize Zulip client (login and sync profile)
 	await zulipClient.init();
 

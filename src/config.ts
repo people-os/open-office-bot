@@ -18,6 +18,7 @@ export default {
 			username: process.env.GOOGLE_USERNAME || '',
 			password: process.env.GOOGLE_PASSWORD || '',
 			totpSecret: process.env.GOOGLE_TOTP_SECRET || '',
+			meetUrl: process.env.GOOGLE_MEET || '',
 		},
 	},
 	puppeteer: {

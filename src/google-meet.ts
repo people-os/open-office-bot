@@ -4,14 +4,16 @@ import totp from 'totp-generator';
 
 import { newBrowser, newPage, clickElement, getText } from './browser';
 
-type Config = { username: string; password: string; totpSecret: string };
-
-type Meeting = string;
+type Config = {
+	username: string;
+	password: string;
+	totpSecret: string;
+	meetUrl: string;
+};
 
 export default async function (config: Config) {
 	const browser = await newBrowser();
 	const page = await newPage(browser);
-	let meeting: string | null = null;
 
 	await authenticate(
 		browser,
@@ -21,19 +23,10 @@ export default async function (config: Config) {
 	);
 
 	return {
-		createMeeting: async (): Promise<Meeting> => {
-			// TODO this meet might get invalid after 24 hours if no one is in it
-			await page.goto('https://meet.google.com');
-			await clickElement(page, 'New meeting');
-			await clickElement(page, 'Start an instant meeting');
-			await page.waitForNavigation({ waitUntil: 'load' });
-			meeting = page.url().split('?')[0];
-			return meeting;
-		},
 		participants: async (): Promise<string> => {
-			if (!meeting) {
+			if (!config.meetUrl) {
 				throw new Error(
-					'Cannot count number of participants because you are not in a meeting.',
+					'Cannot count number of participants because GOOGLE_MEET was not supplied as an env var.',
 				);
 			}
 			try {
@@ -49,7 +42,7 @@ export default async function (config: Config) {
 			}
 		},
 		link: () => {
-			return meeting;
+			return config.meetUrl;
 		},
 	};
 }
@@ -66,7 +59,7 @@ async function authenticate(
 		throw new Error('Response from accounts.google.com was null');
 	}
 	if (resp.url().includes('myaccount.google.com')) {
-		console.log("we're already logged in");
+		console.log("We're already logged in");
 		return true;
 	}
 
