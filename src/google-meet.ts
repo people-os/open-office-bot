@@ -11,6 +11,28 @@ type Config = {
 	meetUrl: string;
 };
 
+function parseCountFromStatus(status: string): number {
+	if (!/in\sthis\scall/.test(status)) {
+		return 0;
+	}
+	if (/is\sin\sthis\scall/.test(status)) {
+		return 1;
+	}
+	const names = status
+		.replace(/\sare\sin\sthis\scall/, '')
+		.split(/,\s|\sand\s/);
+	const moreMatch = names[names.length - 1].match(/(\d+)\smore/);
+	if (moreMatch !== null) {
+		return names.length - 1 + parseInt(moreMatch[1], 10);
+	} else {
+		return names.length;
+	}
+}
+
+function isError(e: unknown): e is Error {
+	return typeof e === 'object' && e !== null && e.hasOwnProperty('message');
+}
+
 export default async function (config: Config) {
 	const browser = await newBrowser();
 	const page = await newPage(browser);
@@ -22,27 +44,42 @@ export default async function (config: Config) {
 		config.totpSecret,
 	);
 
+	const participants = async (): Promise<number> => {
+		try {
+			await page.goto(config.meetUrl);
+			// We need to wait some extra time after the status div renders, because
+			// Google Meets is still querying the meet status for some moments after the
+			// status div has loaded.
+			await page.waitForSelector('div[role=status]');
+			await page.waitForTimeout(600);
+			return parseCountFromStatus(await getText(page, 'in this call'));
+		} catch (e: unknown) {
+			if (
+				isError(e) &&
+				// Selector not found
+				(e.message.includes('Failed to find an element containing') ||
+					// Browser closed while querying selector
+					e.message.includes('closed'))
+			) {
+				return 0;
+			} else {
+				throw e;
+			}
+		}
+	};
+
 	return {
-		participants: async (): Promise<string> => {
-			if (!config.meetUrl) {
-				throw new Error(
-					'Cannot count number of participants because GOOGLE_MEET was not supplied as an env var.',
-				);
-			}
-			try {
-				return await getText(page, 'in this call');
-			} catch (e: any) {
-				if (
-					e.message === 'Failed to find an element containing `in this call`'
-				) {
-					return '0 people in this call';
-				} else {
-					throw e;
-				}
-			}
+		status: async () => {
+			const count = await participants();
+			return `${count} ${
+				count === 1 ? 'person is' : 'people are'
+			} in this call`;
 		},
 		link: () => {
 			return config.meetUrl;
+		},
+		teardown: async () => {
+			await browser.close();
 		},
 	};
 }
@@ -59,7 +96,7 @@ async function authenticate(
 		throw new Error('Response from accounts.google.com was null');
 	}
 	if (resp.url().includes('myaccount.google.com')) {
-		console.log("We're already logged in");
+		// We're already logged in
 		return true;
 	}
 

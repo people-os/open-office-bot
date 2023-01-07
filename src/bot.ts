@@ -36,9 +36,9 @@ async function run() {
 	});
 
 	setInterval(async () => {
-		const participants = await meetSession.participants();
-		if (zulipClient.profile.status !== participants) {
-			zulipClient.setStatus(participants);
+		const status = await meetSession.status();
+		if (zulipClient.profile.status !== status) {
+			zulipClient.setStatus(status);
 		}
 	}, bConfig.statusInterval);
 }
