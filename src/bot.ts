@@ -1,8 +1,15 @@
 import { Zulip, Message } from './zulip';
 import meet from './google-meet';
 import config from './config';
+import * as log from './logger';
 
 const { bot: bConfig, zulip: zConfig, meet: gConfig } = config;
+
+const botMessage = (meetUrl: string) => `
+Hello friends, I'm your friendly neighborhood open office bot. My purpose is to provide a space to connect, collaborate, and work in the open.
+
+Visit your peers at ${meetUrl}, or ask what I can do by pinging or PM-ing me with "\`help\`".
+`;
 
 class Bot {
 	private interval!: NodeJS.Timeout;
@@ -14,9 +21,8 @@ class Bot {
 
 	public async run() {
 		// Create an interface to Zulip
-		this.zulipClient = new Zulip(zConfig.auth, {
-			name: zConfig.profile.name,
-			status: zConfig.profile.status || 'Initializing...',
+		this.zulipClient = new Zulip(zConfig.config, {
+			...zConfig.profile,
 			presence: zConfig.profile.status ? 'active' : 'idle',
 		});
 
@@ -25,6 +31,13 @@ class Bot {
 
 		// Initialize Zulip client (login and sync profile)
 		await this.zulipClient.init();
+
+		// Create bot welcome message in Zulip client
+		await this.zulipClient.createTopic(
+			zConfig.config.streamName,
+			zConfig.profile.name,
+			botMessage(gConfig.auth.meetUrl),
+		);
 
 		this.zulipClient.on('message', async (message: Message) => {
 			if (
@@ -35,7 +48,7 @@ class Bot {
 				return;
 			}
 			if (this.meetSession.link()) {
-				await message.respond(`Join the call at: ${this.meetSession.link()}`);
+				await message.respond(botMessage(this.meetSession.link()));
 			} else {
 				await message.respond(
 					`I don't have a meeting link to provide. Contact my boss.`,
@@ -44,11 +57,16 @@ class Bot {
 		});
 
 		this.interval = setInterval(async () => {
-			const status = await this.meetSession.status();
+			const count = await this.meetSession.participants();
+			const status = `${count} ${
+				count === 1 ? 'person is' : 'people are'
+			} in this call`;
 			if (this.zulipClient.profile.status !== status) {
-				this.zulipClient.setStatus(status);
+				await this.zulipClient.setStatus(status);
 			}
 		}, bConfig.statusInterval);
+
+		log.info('Bot state settled');
 	}
 
 	public async stop() {

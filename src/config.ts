@@ -3,14 +3,15 @@ export default {
 		statusInterval: 10000,
 	},
 	zulip: {
-		auth: {
+		config: {
 			username: process.env.ZULIP_USERNAME || '',
 			apiKey: process.env.ZULIP_API_KEY || '',
 			realm: process.env.ZULIP_REALM || '',
+			streamName: process.env.ZULIP_STREAM || 'Meeting Room',
 		},
 		profile: {
 			name: process.env.ZULIP_NAME || '👀👀 Example Bot 👀👀',
-			status: process.env.DEFAULT_STATUS || '...',
+			status: process.env.DEFAULT_STATUS || 'Initializing...',
 		},
 	},
 	meet: {

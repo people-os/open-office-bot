@@ -32,7 +32,8 @@
     "test:fast": "npm run build && npm run test:node",
     "prepack": "npm run build",
     "start": "npm run build && node build/bot.js",
-    "dev": "env-cmd ts-node-dev --respawn --transpile-only src/bot.ts"
+    "dev": "env-cmd ts-node-dev --respawn --transpile-only src/bot.ts",
+    "prod": "npm run build && PRODUCTION=1 env-cmd node build/bot.js"
   },
   "devDependencies": {
     "@balena/lint": "^5.4.2",
