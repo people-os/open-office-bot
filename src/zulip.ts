@@ -6,7 +6,7 @@ import * as log from './logger';
 
 const PRESENCE_TICK = 140000;
 
-type Config = { username: string; password: string; realm: string };
+type Config = { username: string; apiKey: string; realm: string };
 type Presence = 'active' | 'idle' | 'offline';
 
 type Profile = {
