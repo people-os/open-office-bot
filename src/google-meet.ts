@@ -3,6 +3,7 @@ import { Browser } from 'puppeteer';
 import totp from 'totp-generator';
 
 import { newBrowser, newPage, clickElement, getText } from './browser';
+import * as log from './logger';
 
 type Config = {
 	username: string;
@@ -69,11 +70,10 @@ export default async function (config: Config) {
 	};
 
 	return {
-		status: async () => {
+		participants: async () => {
 			const count = await participants();
-			return `${count} ${
-				count === 1 ? 'person is' : 'people are'
-			} in this call`;
+			log.debug(`Got participants: ${count}`);
+			return count;
 		},
 		link: () => {
 			return config.meetUrl;
@@ -106,7 +106,7 @@ async function authenticate(
 			Promise.reject('no yubi-key for you');
 	});
 
-	console.log('Typing out Google email');
+	log.info('Typing out Google email');
 	await page.waitForSelector('input[type="email"]');
 	await page.waitForSelector('#identifierNext');
 	await page.click('input[type="email"]');
@@ -116,7 +116,7 @@ async function authenticate(
 	await navigationPromise;
 	await page.waitForTimeout(600); // animations...
 
-	console.log('Typing out Google password');
+	log.info('Typing out Google password');
 	await page.waitForSelector('input[type="password"]');
 	await page.waitForSelector('#passwordNext');
 	await page.click('input[type="password"]');
@@ -125,7 +125,7 @@ async function authenticate(
 	await page.click('#passwordNext');
 	await navigationPromise;
 
-	console.log('Attempting 2FA authentication');
+	log.info('Attempting 2FA authentication');
 	await page.waitForTimeout(2000);
 	navigationPromise = page.waitForNavigation();
 	await clickElement(page, 'Try another way');

@@ -4,6 +4,7 @@ import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 import config from './config';
+import * as log from './logger';
 
 const sp = StealthPlugin();
 sp.enabledEvasions.delete('iframe.contentWindow');
@@ -31,7 +32,7 @@ export async function newBrowser(): Promise<Browser> {
 	};
 
 	if (existsSync(config.puppeteer.executablePath)) {
-		console.log('Altering puppeteer chromium path...');
+		log.info('Altering puppeteer chromium path...');
 		/* @ts-ignore */
 		puppeteerOptions.executablePath = config.puppeteer.executablePath;
 	}

@@ -6,7 +6,12 @@ import * as log from './logger';
 
 const PRESENCE_TICK = 140000;
 
-type Config = { username: string; apiKey: string; realm: string };
+type Config = {
+	username: string;
+	apiKey: string;
+	realm: string;
+	streamName: string;
+};
 type Presence = 'active' | 'idle' | 'offline';
 
 type Profile = {
@@ -30,7 +35,16 @@ export class Zulip extends EventEmitter {
 	}
 
 	public async init() {
-		this.client = await zulip(this.config);
+		try {
+			this.client = await zulip(this.config);
+		} catch (e: unknown) {
+			log.error(
+				`Error authenticating with zulip client: ${
+					(e as Error).message
+				}. Check your environment username and API key configurations.`,
+			);
+			process.exit(1);
+		}
 		this.client.callOnEachEvent(
 			(event: any) => {
 				if (
@@ -132,13 +146,58 @@ export class Zulip extends EventEmitter {
 		if (!this.client) {
 			throw new Error('Zulip client has not been initilzied yet!');
 		}
-		log.info(`${method} ${endpoint} ${JSON.stringify(params)}`);
+		log.debug(`${method} ${endpoint} ${JSON.stringify(params)}`);
 		return this.client.callEndpoint(endpoint, method, params);
 	}
 
 	private clearHeartbeat() {
 		if (this.heartbeat) {
 			clearInterval(this.heartbeat);
+		}
+	}
+
+	private async getStreamId(name: string) {
+		const { result, msg, streams } = await this.client.streams.retrieve();
+		if (result !== 'success') {
+			log.error(`Error getting Zulip streams: ${msg}`);
+			return;
+		}
+		const streamList = streams.filter(
+			({ name: n }: { name: string }) => n === name,
+		);
+		if (!streamList.length) {
+			log.error(`Stream with name ${name} doesn't exist`);
+			return;
+		}
+		return streamList[0].stream_id;
+	}
+
+	public async createTopic(stream: string, topic: string, message: string) {
+		const streamId = await this.getStreamId(stream);
+		if (!streamId) {
+			return;
+		}
+		const { result, msg, topics } = await this.client.streams.topics.retrieve({
+			stream_id: streamId,
+		});
+		if (result !== 'success') {
+			log.error(`Error getting topics for stream: ${msg}`);
+			return;
+		}
+		const topicList = topics.filter(
+			({ name }: { name: string }) => name === topic,
+		);
+		if (!topicList.length) {
+			// Create a topic as it doesn't exist
+			log.info('Creating topic for bot...');
+			await this.client.messages.send({
+				to: streamId,
+				type: 'stream',
+				topic,
+				content: message,
+			});
+		} else {
+			log.info('Topic for stream already exists, skipping...');
 		}
 	}
 }
@@ -153,7 +212,7 @@ export class Message {
 	}
 
 	async respond(content: string) {
-		log.info(
+		log.debug(
 			`Sent message { to: ${this.data.sender_email}, type: ${this.data.type}, subject: ${this.data.subject}, contentLength: ${content.length}}`,
 		);
 		return this.client.messages.send({
