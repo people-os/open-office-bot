@@ -1,6 +1,6 @@
 export default {
 	bot: {
-		statusInterval: 10000,
+		statusInterval: 60 * 1000,
 	},
 	zulip: {
 		config: {

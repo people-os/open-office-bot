@@ -41,6 +41,10 @@ _NOTE: It is recommended that you disable all the notifications for this account
 
 ## Development
 
-Create a `.env` file with your configuration variables and than run `npm run dev`.
+Create a `.env.dev` file with your configuration variables, then run `npm run dev`.
 
-This will watch all the source files for changes and automatically reload. Changes to the `.env` file are not automatically picked up so you must stop and run the command again.
+This will watch all the source files for changes and automatically reload. Changes to the `.env.dev` file are not automatically picked up so you must stop and run the command again.
+
+## Production
+
+Create a `.env` file with your production configuration variables, then run `npm run prod`. 
