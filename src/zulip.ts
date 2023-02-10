@@ -12,6 +12,7 @@ type Config = {
 	realm: string;
 	streamName: string;
 };
+
 type Presence = 'active' | 'idle' | 'offline';
 
 type Profile = {
@@ -21,10 +22,11 @@ type Profile = {
 };
 
 export class Zulip extends EventEmitter {
+	public profile: Profile;
+	public presenceUpdatedAt: number = -Infinity;
 	private client: any | null;
 	private config: Config;
 	private heartbeat: NodeJS.Timer | null;
-	public profile: Profile;
 
 	constructor(config: Config, profile: Profile) {
 		super();
@@ -131,7 +133,9 @@ export class Zulip extends EventEmitter {
 			new_user_input: 'false',
 			slim_presence: 'true',
 		};
-		return this.request('/users/me/presence', 'POST', params);
+		const response = await this.request('/users/me/presence', 'POST', params);
+		this.presenceUpdatedAt = new Date().getTime();
+		return response;
 	}
 
 	private async persistPresence(status: Presence) {
