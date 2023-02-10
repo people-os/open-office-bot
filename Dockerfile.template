@@ -1,0 +1,31 @@
+## BUILD ##
+FROM balenalib/amd64-alpine-node:16-run as build
+
+WORKDIR /usr/src/app
+
+# Install development dependencies
+COPY package*.json tsconfig.json ./
+COPY src ./src
+RUN npm install
+
+# Transpile to JS from TS
+RUN npm run build
+
+## RUN ##
+FROM balenalib/amd64-alpine-node:16-run
+
+WORKDIR /usr/src/app
+
+# Install chromium (/usr/bin/chromium-browser)
+RUN apk add --no-cache chromium
+
+# Install production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy production scripts
+COPY --from=build /usr/src/app/build ./build
+COPY entry.sh ./
+
+# Launch bot
+CMD ["/usr/src/app/entry.sh"]
