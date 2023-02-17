@@ -11,10 +11,12 @@ Hello friends, I'm your friendly neighborhood open office bot. My purpose is to 
 Visit your peers at ${meetUrl}, or ask what I can do by pinging or PM-ing me with "\`help\`".
 `;
 
-class Bot {
+export default class Bot {
 	private interval!: NodeJS.Timeout;
 	private zulipClient!: Zulip;
 	private meetSession!: Awaited<ReturnType<typeof meet>>;
+	private participantsUpdatedAt: number = -Infinity;
+
 	constructor() {
 		this.run();
 	}
@@ -56,15 +58,14 @@ class Bot {
 			}
 		});
 
-		this.interval = setInterval(async () => {
-			const count = await this.meetSession.participants();
-			const status = `${count} ${
-				count === 1 ? 'person is' : 'people are'
-			} in this call`;
-			if (this.zulipClient.profile.status !== status) {
-				await this.zulipClient.setStatus(status);
-			}
-		}, bConfig.statusInterval);
+		// Periodically check participants
+		this.interval = setInterval(
+			this.checkParticipants.bind(this),
+			bConfig.statusInterval,
+		);
+
+		// Check participants right away
+		await this.checkParticipants();
 
 		log.info('Bot state settled');
 	}
@@ -82,13 +83,38 @@ class Bot {
 			await this.meetSession.teardown();
 		}
 	}
-}
 
-const bot = new Bot();
-// This listener won't exit the bot gracefully if process.exit() is called explicitly
-// elsewhere in the code, or if there's an uncaught exception, but otherwise it'll allow
-// an async function to run before exiting (which must be called manually).
-process.on('beforeExit', async () => {
-	await bot.stop();
-	process.exit(0);
-});
+	public hasErrors(): false | Error {
+		function within(timestamp: number, threshold: number) {
+			const currentTime = new Date().getTime();
+			const timeDifference = currentTime - timestamp;
+			return timeDifference <= threshold;
+		}
+
+		// Add a 15 second buffer because loading the page is slow
+		if (!within(this.participantsUpdatedAt, bConfig.statusInterval - 15000)) {
+			return new Error('Bot is not communicating with Google Meets');
+		} else if (
+			// Add a 5 second buffer
+			!within(
+				this.zulipClient.presenceUpdatedAt,
+				zConfig.presenceInterval - 5000,
+			)
+		) {
+			return new Error('Bot is not communicating with Zulip');
+		}
+
+		return false;
+	}
+
+	private async checkParticipants() {
+		const count = await this.meetSession.participants();
+		const status = `${count} ${
+			count === 1 ? 'person is' : 'people are'
+		} in this call`;
+		if (this.zulipClient.profile.status !== status) {
+			await this.zulipClient.setStatus(status);
+		}
+		this.participantsUpdatedAt = new Date().getTime();
+	}
+}

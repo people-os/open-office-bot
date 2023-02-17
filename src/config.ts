@@ -1,8 +1,12 @@
 export default {
+	healthcheck: {
+		port: process.env.HEALTHCHECK_PORT || 8000,
+	},
 	bot: {
 		statusInterval: 60 * 1000,
 	},
 	zulip: {
+		presenceInterval: 140000,
 		config: {
 			username: process.env.ZULIP_USERNAME || '',
 			apiKey: process.env.ZULIP_API_KEY || '',

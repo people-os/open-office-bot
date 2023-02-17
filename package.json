@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "Tell you about meetings",
   "homepage": "https://github.com/product-os/open-office-bot#readme",
-  "main": "build/bot.js",
-  "types": "build/bot.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "keywords": [
     "balena",
     "typescript"
@@ -31,9 +31,9 @@
     "test": "npm run build && npm run lint && npm run test:node && npm run test:browser",
     "test:fast": "npm run build && npm run test:node",
     "prepack": "npm run build",
-    "start": "npm run build && node build/bot.js",
-    "dev": "env-cmd -f ./.env.dev ts-node-dev --respawn --transpile-only src/bot.ts",
-    "prod": "npm run build && PRODUCTION=1 env-cmd node build/bot.js"
+    "start": "npm run build && node build/index.js",
+    "dev": "env-cmd -f ./.env.dev ts-node-dev --respawn --transpile-only src/index.ts",
+    "prod": "npm run build && PRODUCTION=1 env-cmd node build/index.js"
   },
   "devDependencies": {
     "@balena/lint": "^5.4.2",
