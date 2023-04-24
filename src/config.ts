@@ -1,6 +1,6 @@
 export default {
 	healthcheck: {
-		port: process.env.HEALTHCHECK_PORT || 8000,
+		port: process.env.HEALTHCHECK_PORT,
 	},
 	bot: {
 		statusInterval: 60 * 1000,
