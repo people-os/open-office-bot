@@ -7,10 +7,7 @@ services:
       dockerfile: Dockerfile.template
     network_mode: host
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - ZULIP_USERNAME=hubot@balena.io
-      - ZULIP_NAME=✨✨ Hangout ✨✨
-      - ZULIP_REALM=https://balena.zulipchat.com
-      - ZULIP_STREAM=Meeting Rooms
-      - GOOGLE_USERNAME=christina@balena.io
-      - GOOGLE_MEET=https://meet.google.com/zxd-rrbc-xau
+      HEALTHCHECK_PORT: 8000

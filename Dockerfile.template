@@ -27,5 +27,8 @@ RUN npm ci --omit=dev
 COPY --from=build /usr/src/app/build ./build
 COPY entry.sh ./
 
+HEALTHCHECK --interval=1m --timeout=30s --start-period=30s --retries=3 \
+    CMD wget http://127.0.0.1:${HEALTHCHECK_PORT:-8000}/healthcheck -O - -q
+
 # Launch bot
 CMD ["/usr/src/app/entry.sh"]
