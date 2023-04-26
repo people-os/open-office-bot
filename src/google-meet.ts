@@ -52,7 +52,7 @@ export default async function (config: Config) {
 			// Google Meets is still querying the meet status for some moments after the
 			// status div has loaded.
 			await page.waitForSelector('div[role=status]');
-			await page.waitForTimeout(600);
+			await page.waitForTimeout(3000);
 			return parseCountFromStatus(await getText(page, 'in this call'));
 		} catch (e: unknown) {
 			if (
